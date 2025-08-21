@@ -21,14 +21,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 20           # ✅ cache 설정 제거
 
-      # 🔹 lock 파일이 없으니 npm install 사용
       - name: Install deps
-        run: npm install
+        run: npm install --no-audit --no-fund   # ✅ npm ci 대신 npm install
 
-      # 🔹 빌드에 환경변수 주입
       - name: Prepare env
         run: |
           if [ -f ".env.production" ]; then cp .env.production .env; fi
