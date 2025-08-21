@@ -18,15 +18,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+          cache: 'npm'
+
+      # 🔹 lock 파일이 없으니 npm install 사용
+      - name: Install deps
+        run: npm install
+
+      # 🔹 빌드에 환경변수 주입
+      - name: Prepare env
+        run: |
+          if [ -f ".env.production" ]; then cp .env.production .env; fi
+
+      - name: Build
+        run: npm run build
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
