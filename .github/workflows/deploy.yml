@@ -1,4 +1,4 @@
-name: Deploy Vite to GitHub Pages
+name: Deploy Vite to GitHub Pages (debug)
 
 on:
   push:
@@ -21,17 +21,41 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20           # ✅ cache 설정 제거
+          node-version: 20
 
+      # 폴더/버전/파일 구조 출력
+      - name: Show repo tree
+        run: |
+          pwd
+          node -v
+          npm -v
+          ls -la
+          echo "---- src ----"
+          ls -la src || true
+          echo "---- public ----"
+          ls -la public || true
+
+      # lock 파일 없으니 npm install 사용
       - name: Install deps
-        run: npm install --no-audit --no-fund   # ✅ npm ci 대신 npm install
+        run: npm install --no-audit --no-fund --legacy-peer-deps
 
+      - name: Show package.json
+        run: cat package.json
+
+      # .env.production → .env 주입
       - name: Prepare env
         run: |
-          if [ -f ".env.production" ]; then cp .env.production .env; fi
+          if [ -f ".env.production" ]; then
+            echo "Using .env.production ↓"
+            cat .env.production
+            cp .env.production .env
+          else
+            echo "No .env.production found"
+          fi
 
-      - name: Build
-        run: npm run build
+      # 빌드 (로그 자세히)
+      - name: Build (verbose)
+        run: npm run build --if-present
 
       - uses: actions/upload-pages-artifact@v3
         with:
